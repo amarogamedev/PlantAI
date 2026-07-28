@@ -1,4 +1,4 @@
-﻿package com.amarogamedev.plantai.llm.service;
+package com.amarogamedev.plantai.service;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.stereotype.Service;

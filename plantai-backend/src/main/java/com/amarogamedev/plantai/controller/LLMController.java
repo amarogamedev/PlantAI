@@ -1,6 +1,6 @@
-﻿package com.amarogamedev.plantai.llm.controller;
+package com.amarogamedev.plantai.controller;
 
-import com.amarogamedev.plantai.llm.service.LLMService;
+import com.amarogamedev.plantai.service.LLMService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

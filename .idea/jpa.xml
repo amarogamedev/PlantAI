@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="plantai" name="plantai" framework="JPA" ormUnit="plantai:plantai" defaultDataSourceId="888c62a2-5ced-41f6-a7c2-c189df3d77e1" />
+    </persistence-units>
+  </component>
+</project>
