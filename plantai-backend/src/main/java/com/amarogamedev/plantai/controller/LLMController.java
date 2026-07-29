@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/llm")
+@RequestMapping("/api/llm")
 public class LLMController {
 
     private final LLMService llmService;
