@@ -1,5 +1,6 @@
 package com.amarogamedev.plantai.service;
 
+import com.amarogamedev.plantai.dto.CreatePlantDTO;
 import com.amarogamedev.plantai.entity.Plant;
 import com.amarogamedev.plantai.repository.PlantRepository;
 import org.springframework.stereotype.Service;
@@ -18,24 +19,46 @@ public class PlantService {
         this.plantRepository = plantRepository;
     }
 
-    public Plant create(Plant plant) {
-        return plantRepository.save(plant);
+    public Plant create(CreatePlantDTO plant) {
+        Plant plantEntity = Plant.builder()
+                .id(null)
+                .name(plant.name())
+                .wateringIntervalDays(plant.wateringIntervalDays())
+                .lastWatered(plant.lastWatered() == null ? LocalDate.now() : plant.lastWatered())
+                .build();
+        return plantRepository.save(plantEntity);
+    }
+
+    public Plant update(Long id, CreatePlantDTO plant) {
+        Plant plantEntity = findById(id).orElseThrow();
+
+        if(plant.name() != null) {
+            plantEntity.setName(plant.name());
+        }
+        if(plant.wateringIntervalDays() != null) {
+            plantEntity.setWateringIntervalDays(plant.wateringIntervalDays());
+        }
+        if(plant.lastWatered() != null) {
+            plantEntity.setLastWatered(plant.lastWatered());
+        }
+
+        return plantRepository.save(plantEntity);
     }
 
     public List<Plant> list() {
         return plantRepository.findAll();
     }
 
-    public Optional<Plant> get(Long id) {
+    public List<Plant> findBySimilarName(String name) {
+        return plantRepository.findBySimilarName(name);
+    }
+
+    public Optional<Plant> findById(Long id) {
         return plantRepository.findById(id);
     }
 
-    public boolean delete(Long id) {
-        if (!plantRepository.existsById(id)) {
-            return false;
-        }
-        plantRepository.deleteById(id);
-        return true;
+    public List<String> getAllPlantNames() {
+        return plantRepository.findAll().stream().map(Plant::getName).collect(Collectors.toList());
     }
 
     public List<Plant> dueToday() {
@@ -49,4 +72,23 @@ public class PlantService {
         }).collect(Collectors.toList());
     }
 
+    public boolean delete(String name) {
+        if (!plantRepository.existsByName(name)) {
+            return false;
+        }
+        plantRepository.deleteByName(name);
+        return true;
+    }
+
+    public boolean delete(Long id) {
+        if (!plantRepository.existsById(id)) {
+            return false;
+        }
+        plantRepository.deleteById(id);
+        return true;
+    }
+
+    public List<Plant> plantsDueBetween(LocalDate start, LocalDate end) {
+        return plantRepository.findPlantsDueBetween(start, end);
+    }
 }
