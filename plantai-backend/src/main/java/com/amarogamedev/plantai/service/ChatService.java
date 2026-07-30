@@ -39,6 +39,7 @@ public class ChatService {
                     
                     Formatting:
                     - Use Markdown to present information in a clean, visual layout.
+                    - Use Markdown tables when presenting structured data.
                     - ALWAYS insert a blank line before starting a list.
                     - Use bold text for key labels (e.g., **Plant Name**, **Watering Schedule**).
                     - Avoid abbreviations (write full words like "Última rega", never "Últa").

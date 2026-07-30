@@ -109,6 +109,9 @@ export default function App() {
                     />
                 </div>
             </div>
+            <span style={styles.subtitle}>
+                Created by Luis Fellipe Amaro. <a href={"https://github.com/amarogamedev/PlantAI"}>Read about this project on GitHub</a>
+            </span>
         </div>
     );
 }
@@ -118,6 +121,8 @@ const styles: { [key: string]: React.CSSProperties } = {
         backgroundColor: '#101010',
         minHeight: '100vh',
         display: 'flex',
+        flexDirection: 'column',
+        gap: 32,
         justifyContent: 'center',
         alignItems: 'center',
         color: '#f8fafc',
@@ -173,6 +178,7 @@ const styles: { [key: string]: React.CSSProperties } = {
         fontSize: '14px',
     },
     inputWrapper: {
-        padding: '16px 24px 24px 24px'
+        padding: '16px',
+        borderTop: '1px solid #404040',
     },
 };
