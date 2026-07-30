@@ -42,3 +42,7 @@ Start the frontend:
 npm install
 npm run dev
 ```
+## 💿 Preview
+
+<img width="717" height="798" alt="image" src="https://github.com/user-attachments/assets/460e8767-35a0-4c90-98c9-e5326a3e5513" />
+<img width="715" height="798" alt="image" src="https://github.com/user-attachments/assets/fa4b89c8-5831-4c05-810c-7ba3a2530509" />
