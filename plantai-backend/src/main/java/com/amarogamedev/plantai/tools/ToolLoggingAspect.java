@@ -19,7 +19,7 @@ public class ToolLoggingAspect {
         String toolName = joinPoint.getSignature().getName();
         long start = System.currentTimeMillis();
 
-        log.info("→ Tool: {} called with arguments: {}", toolName, Arrays.toString(joinPoint.getArgs()));
+        log.info("Tool: {} called with arguments: {}", toolName, Arrays.toString(joinPoint.getArgs()));
 
         try {
             Object result = joinPoint.proceed();
@@ -27,19 +27,19 @@ public class ToolLoggingAspect {
 
             if (result instanceof ToolResponse<?> response) {
                 if (response.success()) {
-                    log.info("✓ Tool: {} completed after {} ms - {}", toolName, duration, response.data());
+                    log.info("Tool: {} completed after {} ms - {}", toolName, duration, response.data());
                 } else {
-                    log.warn("⚠ Tool: {} completed with business error [{}] after {} ms", toolName, response.errorCode(), duration);
+                    log.warn("Tool: {} completed with business error [{}] after {} ms", toolName, response.errorCode(), duration);
                 }
 
             } else {
-                log.info("✓ Tool: {} completed after {} ms", toolName, duration);
+                log.info("Tool: {} completed after {} ms", toolName, duration);
             }
             return result;
 
         } catch (Exception e) {
             long duration = System.currentTimeMillis() - start;
-            log.error("✗ Tool: {} failed after {} ms", toolName, duration, e);
+            log.error("Tool: {} failed after {} ms", toolName, duration, e);
             throw e;
         }
     }

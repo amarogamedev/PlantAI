@@ -78,6 +78,7 @@ public class PlantTools {
             The plant's name must be unique, this method may throw an error if another plant with the same name exists.
             If the user uses a relative date (today, yesterday, tomorrow, etc.),
             You MUST call getUpdatedUserContext before filling lastWatered.
+            Do NOT assume any information without asking the user first, always ask for all the parameters necessary to create a plant.
             """)
     public ToolResponse<PlantDTO> createPlant(CreatePlantDTO plant) {
         try {
