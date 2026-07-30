@@ -1,39 +1,69 @@
-import React, { useState, useRef } from 'react';
-import {streamChat} from "./services/api.ts";
+import React, { useEffect, useRef, useState } from 'react';
+import { sendChat } from './services/api';
+import { ChatMessage, type Message } from './components/ChatMessage';
+import { ChatInput } from './components/ChatInput';
+import './App.css';
+import { PottedPlantIcon } from "@phosphor-icons/react";
 
 export default function App() {
     const [prompt, setPrompt] = useState('');
-    const [response, setResponse] = useState('');
+    const [messages, setMessages] = useState<Message[]>([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
     const abortControllerRef = useRef<AbortController | null>(null);
+    const chatBottomRef = useRef<HTMLDivElement | null>(null);
+
+    const scrollToBottom = () => {
+        chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    useEffect(() => {
+        scrollToBottom();
+    }, [messages]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!prompt.trim() || loading) return;
 
-        setLoading(true);
-        setResponse('');
+        const userText = prompt.trim();
+        setPrompt('');
         setError(null);
+        setLoading(true);
+
+        const userMsgId = Date.now().toString();
+        const assistantMsgId = (Date.now() + 1).toString();
+
+        setMessages((prev) => [
+            ...prev,
+            { id: userMsgId, role: 'user', content: userText },
+            { id: assistantMsgId, role: 'assistant', content: '', isLoading: true },
+        ]);
 
         const controller = new AbortController();
         abortControllerRef.current = controller;
 
         try {
-            await streamChat({
-                prompt,
+            const responseText = await sendChat({
+                prompt: userText,
                 signal: controller.signal,
-                onChunk: (chunk) => {
-                    setResponse((prev) => prev + chunk);
-                },
             });
+
+            setMessages((prev) =>
+                prev.map((msg) =>
+                    msg.id === assistantMsgId
+                        ? { ...msg, content: responseText, isLoading: false }
+                        : msg
+                )
+            );
         } catch (err: any) {
             if (err.name === 'AbortError') {
-                console.log('Streaming interrupted by the user.');
+                console.log('Interrupted by the user.');
+                setMessages((prev) => prev.filter((msg) => msg.id !== assistantMsgId));
             } else {
                 console.error('Request error:', err);
-                setError(err.message || 'An error occurred.');
+                setError(err.message || 'The server returned an error.');
+                setMessages((prev) => prev.filter((msg) => msg.id !== assistantMsgId));
             }
         } finally {
             setLoading(false);
@@ -46,38 +76,37 @@ export default function App() {
     };
 
     return (
-        <div style={styles.container}>
-            <h2>Chat Streaming (Spring WebFlux + React)</h2>
+        <div style={styles.pageBackground}>
+            <div style={styles.container}>
+                <header style={styles.header}>
+                    <div style={{ display: 'flex', gap: 8 }}>
+                        <PottedPlantIcon size={24} color={'#7cc668'} weight="fill" />
+                        <h2 style={styles.title}>PlantAI</h2>
+                    </div>
+                    <span style={styles.subtitle}>Your personal botanical assistant!</span>
+                </header>
 
-            <form onSubmit={handleSubmit} style={styles.form}>
-        <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="How can I help you?"
-            rows={4}
-            style={styles.textarea}
-            disabled={loading}
-        />
-
-                <div style={styles.buttonGroup}>
-                    {!loading ? (
-                        <button type="submit" style={styles.buttonSubmit} disabled={!prompt.trim()}>
-                            Send
-                        </button>
+                <div style={styles.chatArea}>
+                    {messages.length === 0 ? (
+                        <div style={styles.emptyState}>
+                            No messages yet.
+                        </div>
                     ) : (
-                        <button type="button" onClick={handleStop} style={styles.buttonStop}>
-                            Stop response
-                        </button>
+                        messages.map((msg) => <ChatMessage key={msg.id} message={msg} />)
                     )}
+                    <div ref={chatBottomRef} />
                 </div>
-            </form>
 
-            {error && <div style={styles.errorBox}>{error}</div>}
+                {error && <div style={styles.errorBox}>{error}</div>}
 
-            <div style={styles.responseBox}>
-                <strong style={{ display: 'block', marginBottom: '8px' }}>Response:</strong>
-                <div style={styles.responseText}>
-                    {response || (loading ? 'Waiting response...' : 'The response will show up here.')}
+                <div style={styles.inputWrapper}>
+                    <ChatInput
+                        prompt={prompt}
+                        setPrompt={setPrompt}
+                        loading={loading}
+                        onSubmit={handleSubmit}
+                        onStop={handleStop}
+                    />
                 </div>
             </div>
         </div>
@@ -85,66 +114,65 @@ export default function App() {
 }
 
 const styles: { [key: string]: React.CSSProperties } = {
-    container: {
-        maxWidth: '650px',
-        margin: '40px auto',
-        padding: '20px',
-        fontFamily: 'system-ui, -apple-system, sans-serif',
-    },
-    form: {
+    pageBackground: {
+        backgroundColor: '#101010',
+        minHeight: '100vh',
         display: 'flex',
-        flexDirection: 'column',
-        gap: '12px',
-    },
-    textarea: {
-        width: '100%',
-        padding: '12px',
-        borderRadius: '8px',
-        border: '1px solid #ccc',
-        fontSize: '15px',
-        resize: 'vertical',
+        justifyContent: 'center',
+        alignItems: 'center',
+        color: '#f8fafc',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        padding: '20px',
         boxSizing: 'border-box',
     },
-    buttonGroup: {
+    container: {
+        width: '100%',
+        maxWidth: '768px',
+        height: '85vh',
         display: 'flex',
-        justifyContent: 'flex-end',
+        flexDirection: 'column',
+        backgroundColor: '#202020',
+        borderRadius: '16px',
+        border: '1px solid #404040',
+        boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)',
+        overflow: 'hidden',
     },
-    buttonSubmit: {
-        padding: '10px 20px',
-        borderRadius: '6px',
-        border: 'none',
-        backgroundColor: '#0066cc',
-        color: '#fff',
-        fontSize: '14px',
-        cursor: 'pointer',
+    header: {
+        padding: '16px 24px',
+        borderBottom: '1px solid #404040',
     },
-    buttonStop: {
-        padding: '10px 20px',
-        borderRadius: '6px',
-        border: 'none',
-        backgroundColor: '#dc3545',
-        color: '#fff',
+    title: {
+        margin: 0,
+        fontSize: '18px',
+        fontWeight: 600,
+        color: '#f8fafc',
+    },
+    subtitle: {
+        fontSize: '12px',
+        color: '#c4c4c4',
+    },
+    chatArea: {
+        flex: 1,
+        overflowY: 'auto',
+        padding: '24px',
+        display: 'flex',
+        flexDirection: 'column',
+    },
+    emptyState: {
+        margin: 'auto',
+        color: '#c4c4c4',
         fontSize: '14px',
-        cursor: 'pointer',
+        textAlign: 'center',
     },
     errorBox: {
-        marginTop: '16px',
+        margin: '0 24px 12px 24px',
         padding: '12px',
-        backgroundColor: '#f8d7da',
-        color: '#721c24',
-        borderRadius: '6px',
-    },
-    responseBox: {
-        marginTop: '24px',
-        padding: '16px',
-        backgroundColor: '#f4f4f6',
+        backgroundColor: '#fca5a5',
+        color: '#101010',
         borderRadius: '8px',
-        minHeight: '100px',
+        fontSize: '14px',
     },
-    responseText: {
-        whiteSpace: 'pre-wrap',
-        wordBreak: 'break-word',
-        fontSize: '15px',
-        lineHeight: '1.5',
+    inputWrapper: {
+        padding: '16px 24px 24px 24px'
     },
 };

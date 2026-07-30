@@ -80,14 +80,6 @@ public class PlantService {
         return true;
     }
 
-    public boolean delete(Long id) {
-        if (!plantRepository.existsById(id)) {
-            return false;
-        }
-        plantRepository.deleteById(id);
-        return true;
-    }
-
     public List<Plant> plantsDueBetween(LocalDate start, LocalDate end) {
         return plantRepository.findPlantsDueBetween(start, end);
     }
