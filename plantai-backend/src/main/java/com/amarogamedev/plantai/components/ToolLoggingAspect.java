@@ -1,5 +1,6 @@
-package com.amarogamedev.plantai.tools;
+package com.amarogamedev.plantai.components;
 
+import com.amarogamedev.plantai.dto.ToolResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

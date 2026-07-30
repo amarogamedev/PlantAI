@@ -1,4 +1,4 @@
-package com.amarogamedev.plantai.tools;
+package com.amarogamedev.plantai.dto;
 
 public record ToolResponse<T>(
         boolean success,

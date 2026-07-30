@@ -1,10 +1,11 @@
-package com.amarogamedev.plantai.tools;
+package com.amarogamedev.plantai.components;
 
 import com.amarogamedev.plantai.dto.CreatePlantDTO;
 import com.amarogamedev.plantai.dto.UpdatedUserContext;
 import com.amarogamedev.plantai.dto.PlantDTO;
 import com.amarogamedev.plantai.entity.Plant;
 import com.amarogamedev.plantai.service.PlantService;
+import com.amarogamedev.plantai.dto.ToolResponse;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
