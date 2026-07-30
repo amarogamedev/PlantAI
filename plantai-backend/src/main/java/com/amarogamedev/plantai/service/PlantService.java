@@ -57,10 +57,6 @@ public class PlantService {
         return plantRepository.findById(id);
     }
 
-    public List<String> getAllPlantNames() {
-        return plantRepository.findAll().stream().map(Plant::getName).collect(Collectors.toList());
-    }
-
     public List<Plant> dueToday() {
         LocalDate today = LocalDate.now();
         return plantRepository.findAll().stream().filter(p -> {

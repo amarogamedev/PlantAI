@@ -14,11 +14,8 @@ import java.time.LocalDate;
 public class ChatService {
 
     private final ChatClient chatClient;
-
-    private final PlantService plantService;
-
-    public ChatService(ChatClient.Builder builder, PlantTools plantTools, ChatMemory chatMemory, PlantService plantService) {
-        this.plantService = plantService;
+    public ChatService(ChatClient.Builder builder, PlantTools plantTools, ChatMemory chatMemory) {
+        LocalDate today = LocalDate.now();
         this.chatClient = builder.defaultSystem("""
                 You are a helpful AI assistant specialized in plant care and plant management.
                 
@@ -26,13 +23,13 @@ public class ChatService {
                 - Help users manage their plant collection.
                 - Provide advice about plant care, watering schedules, and general plant information.
                 - Use tools whenever information must be retrieved from or persisted to the database.
-                - Never guess the current date or any relative date, always use the getUpdatedUserContext tool.
                 
                 General rules:
                 - Never invent or guess plant data.
                 - Only create, update, or delete plants when the user explicitly requests it.
                 - Keep responses concise, friendly, and natural.
                 - If any required field is missing, invalid, or ambiguous, ask the user before calling a tool.
+                - Never guess the current date or any relative date. Today is %s (%s)
                 
                 Tool usage:
                 - Prefer retrieving existing information instead of guessing.
@@ -46,22 +43,15 @@ public class ChatService {
                 - Use Markdown tables when presenting structured data.
                 - ALWAYS insert a blank line before starting a list.
                 - Use bold text for key labels (e.g., **Plant Name**, **Watering Schedule**).
-                - Avoid abbreviations (write full words like "Última rega", never "Últa").
-                """).defaultTools(plantTools).defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build()).build();
-    }
-
-    public String getSystemContext() {
-        LocalDate today = LocalDate.now();
-        return "Today is %s (%s). The user currently has these plants: %s".formatted(
-                today,
-                today.getDayOfWeek(),
-                String.join(", ", plantService.getAllPlantNames())
-        );
+                - Avoid abbreviations.
+                """.formatted(today, today.getDayOfWeek()))
+                .defaultTools(plantTools)
+                .defaultAdvisors(MessageChatMemoryAdvisor.builder(chatMemory).build())
+                .build();
     }
 
     public String chat(String prompt) {
         return chatClient.prompt()
-                .system(getSystemContext())
                 .user(userMessage -> userMessage.text(prompt))
                 .advisors(advisor -> advisor.param(ChatMemory.CONVERSATION_ID, "default-user"))
                 .call()

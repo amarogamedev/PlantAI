@@ -1,11 +1,10 @@
 package com.amarogamedev.plantai.components;
 
 import com.amarogamedev.plantai.dto.CreatePlantDTO;
-import com.amarogamedev.plantai.dto.UpdatedUserContext;
 import com.amarogamedev.plantai.dto.PlantDTO;
+import com.amarogamedev.plantai.dto.ToolResponse;
 import com.amarogamedev.plantai.entity.Plant;
 import com.amarogamedev.plantai.service.PlantService;
-import com.amarogamedev.plantai.dto.ToolResponse;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.stereotype.Component;
 
@@ -77,8 +76,8 @@ public class PlantTools {
             The plant information should include its name,
             watering interval in days, and optionally the last watering date.
             The plant's name must be unique, this method may throw an error if another plant with the same name exists.
-            If the user uses a relative date (today, yesterday, tomorrow, etc.),
-            You MUST call getUpdatedUserContext before filling lastWatered.
+            If the user uses a relative date (today, yesterday, tomorrow, etc.)
+            you MUST refer to the system prompt to know what day it is before filling lastWatered.
             Do NOT assume any information without asking the user first, always ask for all the parameters necessary to create a plant.
             """)
     public ToolResponse<PlantDTO> createPlant(CreatePlantDTO plant) {
@@ -129,9 +128,8 @@ public class PlantTools {
         Use this whenever the user asks about plants that need watering during a specific period.
         Always use this tool instead of calculating watering schedules yourself.
         The dates must be absolute ISO-8601 dates (yyyy-MM-dd).
-        If the user uses relative dates (today, tomorrow, next week, etc.),
-        you MUST call getUpdatedUserContext first to determine the correct
-        calendar dates before calling this tool.
+        If the user uses a relative date (today, yesterday, tomorrow, etc.)
+        you MUST refer to the system prompt to determine the correct calendar dates before calling this tool.
         """)
     public ToolResponse<List<PlantDTO>> plantsDueBetween(LocalDate start, LocalDate end) {
         try {
@@ -192,8 +190,8 @@ public class PlantTools {
             If you change the plant's name, the new name must be unique,
             this method may throw an error if another plant with the same name exists.
             If you don't know the ID of the plant being updated, call findPlantBySimilarName using the name the user provided.
-            If the user uses a relative date (today, yesterday, tomorrow, etc.),
-            You MUST call getUpdatedUserContext before filling lastWatered.
+            If the user uses a relative date (today, yesterday, tomorrow, etc.)
+            you MUST refer to the system prompt to know what day it is before filling lastWatered.
             """)
     public ToolResponse<PlantDTO> updatePlant(Long id, CreatePlantDTO plant) {
         try {
@@ -202,17 +200,5 @@ public class PlantTools {
         } catch (Exception e) {
             return ToolResponse.error("UPDATE_PLANT_ERROR", "Failed to update the plant: " + e.getMessage());
         }
-    }
-
-    @Tool(description = """
-            Returns the current local date, current day of week and the user's plant names.
-            Always use this tool before calling any other tool to understand the user's context.
-            Always use this tool before interpreting relative dates to ensure the correct calendar date.
-            Returns the current date in ISO-8601 format (yyyy-MM-dd).
-            """)
-    public ToolResponse<UpdatedUserContext> getUpdatedUserContext() {
-        LocalDate today = LocalDate.now();
-        List<String> plantNames = plantService.getAllPlantNames();
-        return ToolResponse.success(new UpdatedUserContext(today, today.getDayOfWeek(), plantNames));
     }
 }
