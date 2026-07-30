@@ -1,6 +1,7 @@
 ﻿import React from 'react';
 import Markdown from "react-markdown";
 import remarkBreaks from "remark-breaks";
+import remarkGfm from 'remark-gfm';
 import {HourglassHighIcon} from "@phosphor-icons/react";
 
 export interface Message {
@@ -29,12 +30,15 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message }) => {
                             ul: ({ children }) => <ul style={styles.list}>{children}</ul>,
                             li: ({ children }) => <li style={styles.listItem}>{children}</li>,
                             strong: ({ children }) => <strong style={styles.strong}>{children}</strong>,
+                            table: ({ children }) => <table style={styles.table}>{children}</table>,
+                            th: ({ children }) => <th style={styles.th}>{children}</th>,
+                            td: ({ children }) => <td style={styles.td}>{children}</td>,
                         }}
-                        remarkPlugins={[remarkBreaks]}
+                        remarkPlugins={[remarkBreaks, remarkGfm]}
                     >
                         {message.content}
                     </Markdown>
-                    {message.isLoading && <HourglassHighIcon size={24} color={'#101010'} weight="fill" />}
+                    {message.isLoading && <HourglassHighIcon size={24} color={'#7cc668'} weight="fill" style={{marginTop: 8}}/>}
                 </div>
             </div>
         </div>
@@ -89,5 +93,20 @@ const styles: { [key: string]: React.CSSProperties } = {
     },
     strong: {
         fontWeight: 600,
-    }
+    },
+    table: {
+        borderCollapse: 'collapse',
+        width: '100%',
+        margin: '8px 0',
+        fontSize: '14px',
+    },
+    th: {
+        borderBottom: '2px solid #404040',
+        padding: '6px 8px',
+        textAlign: 'left',
+    },
+    td: {
+        borderBottom: '1px solid #303030',
+        padding: '6px 8px',
+    },
 };
