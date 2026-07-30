@@ -30,6 +30,26 @@ ollama pull qwen3:8b
 ollama run qwen3:8b
 ```
 
+Create the database on MySQL:
+
+```sql
+CREATE DATABASE plantai;
+```
+
+Configure application.properties:
+```bash
+spring.ai.ollama.base-url=http://localhost:11434
+spring.ai.ollama.chat.model=qwen3:8b
+spring.ai.ollama.chat.options.temperature=0
+
+logging.level.org.springframework.ai=INFO
+logging.level.org.springframework.web.client=INFO
+
+spring.datasource.url=jdbc:mysql://localhost:3306/plantai
+spring.datasource.username=root
+spring.datasource.password=your_password
+```
+
 Start the backend:
 
 ```bash
@@ -42,6 +62,7 @@ Start the frontend:
 npm install
 npm run dev
 ```
+
 ## 💿 Preview
 
 <img width="717" height="798" alt="image" src="https://github.com/user-attachments/assets/460e8767-35a0-4c90-98c9-e5326a3e5513" />
